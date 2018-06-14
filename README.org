@@ -1,0 +1,5 @@
+#+TITLE: Frosting
+
+Frosting is the micro-framework associated with Icing, and handles pushing config to devices.
+
+It fetches config off Icing, and pushes it to devices. It's built with simplicity and stability in mind.
