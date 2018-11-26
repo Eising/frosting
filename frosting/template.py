@@ -1,6 +1,7 @@
 import pystache
 import pyaml
 import json
+import frosting.validators
 
 
 class FrostingTemplate:
@@ -26,7 +27,8 @@ class FrostingTemplate:
         return list(set(keys))
 
     def service_structure(self):
-        builder = {'name': '', 'vars': {}}
+        validators = frosting.validators.VALIDATORS
+        builder = {'name': '', 'available_validators': validators, 'vars': {}}
 
         for tag in self.template_tags():
             builder['vars'][tag] = {
@@ -39,3 +41,7 @@ class FrostingTemplate:
 
     def json_dump(self):
         return json.dumps(self.service_structure())
+
+    def compile_template(self, **kwargs):
+        """Compile the template with the dynamic options provided by kwargs"""
+        return pystache.render(self.template, kwargs)

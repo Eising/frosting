@@ -2,6 +2,9 @@ from frosting.exceptions import MissingInput
 
 
 class BaseType(object):
+    """This is the base type class. It implements the 'requires_input' instance
+    variable, that controls whether the subclass type should ask for a verbatim
+    input"""
 
     requires_input = False
 
