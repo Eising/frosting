@@ -3,6 +3,7 @@ from frosting.template import FrostingTemplate
 from ruamel.yaml import YAML
 import importlib
 import re
+from pprint import pprint
 
 
 class Frosting(object):
@@ -34,7 +35,7 @@ class Frosting(object):
                         inputs = typedef()
                         self.input[variable] = inputs.get()
                     else:
-                        if len(self.structure['vars'][variable]['validator']) > 0:
+                        if "validator" in self.structure['vars'][variable] and len(self.structure['vars'][variable]['validator']) > 0:
                             regex = re.compile(r'^validators\.(.+)$')
                             validator = regex.fullmatch(
                                 self.structure['vars'][variable]['validator']).group(1)
@@ -42,7 +43,9 @@ class Frosting(object):
                                 validator=validator, input=contents)
                             self.input[variable] = validated.get()
                         else:
-                            unvalidated = typedef(input=contents)
+                            pprint(self.structure['vars'][variable])
+                            unvalidated = typedef(
+                                input=contents, **self.structure['vars'][variable])
                             self.input[variable] = unvalidated.get()
 
                 else:
@@ -57,10 +60,13 @@ class Frosting(object):
     def compile(self):
         """ Compile the template"""
         # First check if all inputs are set
+
         tags = self.template.template_tags()
         vars = list(self.input.keys())
+        tags.sort()
+        vars.sort()
 
-        if vars.sort() == tags.sort():
+        if vars == tags:
             return self.template.compile_template(**self.input)
         else:
             raise TemplateCompileError(

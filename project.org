@@ -11,8 +11,12 @@
 
 ** TODO Implement JSON-based service structures
 
-** TODO Implement more simple types
+** DONE Implement more simple types
+   CLOSED: [2018-11-26 Mon 16:02]
    I think numbers/integers is the only one here, but maybe others can come?
+   Update: IntergerInput has been implemented with a limit option
+
+** TODO Migrate tester.py as unit tests
 
 * Milestone 2
 

@@ -10,7 +10,7 @@ class TextInput(BaseType):
     def __init__(self, **kwargs):
         """Fetches the validator from the input kwargs, and initiates the parent
         class"""
-        if "validator" in kwargs:
+        if "validator" in kwargs and len(kwargs.get('validator')) > 0:
             self.validator = kwargs.get('validator')
         else:
             self.validator = None
