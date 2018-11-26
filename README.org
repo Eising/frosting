@@ -3,7 +3,7 @@
 Frosting is the template library developed to provision network equipment based
 on small templates with a minimum of logic.
 
-* Sketch
+* Outline
 The idea is that you write a template, that template compiles in to a YAML
 structure in which you define the variables. Example:
 
@@ -29,4 +29,45 @@ interface {{interface}}
       netmask:
         type: types.TextInput
         validator: validators.IPv4_Address
+#+END_SRC
+
+* Example code
+
+#+BEGIN_SRC python
+  from frosting import Frosting
+
+  template = """
+  interface {{interface}}
+    ipv4 address {{ipv4}} {{netmask}}
+  !
+  """
+
+  structure = """
+  ---
+  available_validators:
+    - validators.IPv4_Address: 'Validates IPv4 Addresses, e.g. 10.0.0.1'
+    - validators.IPv6_Address: 'Validates IPv6 Addresses, e.g. 2001:db8::f00'
+  name: "MyService"
+  vars:
+    interface:
+      type: types.TextInput
+      validator: ""
+    ipv4:
+      type: types.TextInput
+      validator: "validators.IPv4_Address"
+    netmask:
+      type: types.TextInput
+      validator: "validators.IPv4_Address"
+  """
+
+  frosting = Frosting(template)
+
+  frosting.load_yaml_structure(structure)
+  frosting.add("interface", "TenGigE0/1/2/3")
+  frosting.add("ipv4", "1.1.1.1")
+  frosting.add("netmask", "255.255.255.252")
+  result = frosting.compile()
+
+  print(result)
+
 #+END_SRC
