@@ -1,5 +1,32 @@
 #+TITLE: Frosting
 
-Frosting is the micro-framework associated with Icing, and handles pushing config to devices.
+Frosting is the template library developed to provision network equipment based
+on small templates with a minimum of logic.
 
-It fetches config off Icing, and pushes it to devices. It's built with simplicity and stability in mind.
+* Sketch
+The idea is that you write a template, that template compiles in to a YAML
+structure in which you define the variables. Example:
+
+** Template
+#+BEGIN_EXAMPLE
+interface {{interface}}
+ ipv4 address {{ipv4}} {{netmask}}
+!
+#+END_EXAMPLE
+
+** Service Definition
+#+BEGIN_SRC yaml
+  ---
+  service:
+    name: myservice
+    vars:
+      interface:
+        type: types.TextInput
+        validator: validators.Ios_interface
+      ipv4:
+        type: types.TextInput
+        validator: validators.IPv4_Address
+      netmask:
+        type: types.TextInput
+        validator: validators.IPv4_Address
+#+END_SRC
