@@ -1,0 +1,23 @@
+#+TITLE: TODO for the project
+
+* Milestone 1
+
+** TODO Port all validators from viconf
+   I have a lot of regex-based validators in place already in viconf. These
+   should be easy to migrate.
+
+** TODO  Implement range-based validation
+   Integer-range based validation is handy for e.g. VLANs.
+
+** TODO Implement JSON-based service structures
+
+** TODO Implement more simple types
+   I think numbers/integers is the only one here, but maybe others can come?
+
+* Milestone 2
+
+** TODO Implement an HTML exporter
+   This should make it easy to integrate in web-based framework
+
+* Milestone 3
+** TODO Implement a simple integrated CLI
