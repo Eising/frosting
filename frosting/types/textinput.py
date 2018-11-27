@@ -6,6 +6,7 @@ from frosting.exceptions import InvalidValidatorModule, FieldInputNotValid
 class TextInput(BaseType):
 
     requires_input = True
+    ALLOWED_INCLUDE_PATH = ['frosting.']
 
     def __init__(self, **kwargs):
         """Fetches the validator from the input kwargs, and initiates the parent
@@ -15,6 +16,8 @@ class TextInput(BaseType):
         else:
             self.validator = None
 
+        # TODO: Allow modification of ALLOWED_INCLUDE_PATH
+
         super().__init__(**kwargs)
 
     def filter(self):
@@ -23,12 +26,22 @@ class TextInput(BaseType):
         """
         if self.validator is not None:
             try:
-                validators = importlib.import_module('frosting.validators')
-                if hasattr(validators, self.validator):
-                    validator = getattr(validators, self.validator)
+                for allowed_module in self.ALLOWED_INCLUDE_PATH:
+                    if not self.validator.startswith(allowed_module):
+                        raise InvalidValidatorModule(
+                            "Validator refers to a module not explicitly allowed")
+
+                validator_module = self.validator.split(".")
+                validator_class = validator_module.pop()
+                validator_module_path = ".".join(validator_module)
+                validators = importlib.import_module(validator_module_path)
+
+                if hasattr(validators, validator_class):
+                    validator = getattr(validators, validator_class)
                 else:
-                    raise InvalidValidatorModule("Invalid validator")
-            except importlib.ModuleNotFoundError:
+                    raise InvalidValidatorModule(
+                        "Invalid validator {}".format(validator_class))
+            except ModuleNotFoundError:
                 raise InvalidValidatorModule("Invalid validator")
 
             if hasattr(validator, "validate"):

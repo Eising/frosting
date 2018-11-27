@@ -1,7 +1,6 @@
 from frosting.types import BaseType
 from frosting.exceptions import FieldInputNotValid
 import re
-from pprint import pprint
 
 
 class IntegerInput(BaseType):
@@ -11,7 +10,6 @@ class IntegerInput(BaseType):
     def __init__(self, **kwargs):
         """Loads the integer type class. Optional range object can be supplied as
 range="""
-        pprint(kwargs)
         if "limit" in kwargs:
             limit = kwargs.get('limit')
             regex = re.compile(r'^(\d+)..(\d+)$')

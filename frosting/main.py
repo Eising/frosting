@@ -1,4 +1,4 @@
-from frosting.exceptions import NoStructureLoaded, FieldInputNotValid, UnknownVariable, UnknownOrIncorrectType, TemplateCompileError
+from frosting.exceptions import NoStructureLoaded, UnknownVariable, UnknownOrIncorrectType, TemplateCompileError
 from frosting.template import FrostingTemplate
 from ruamel.yaml import YAML
 import importlib
@@ -7,11 +7,20 @@ from pprint import pprint
 
 
 class Frosting(object):
+    # require all function filters to start with 'frosting.'
+    ALLOWED_INCLUDE_PATH = ['frosting.']
 
-    def __init__(self, template):
+    def __init__(self, template, **kwargs):
         self.template = FrostingTemplate(template)
         self.input = {}
         self.structure = None
+        if 'allowed_modules' in kwargs:
+            modules = kwargs.get('allowed_modules')
+            if modules.__class__ == 'list':
+                for omodule in modules:
+                    self.ALLOWED_INCLUDE_PATH.append(omodule)
+            else:
+                self.ALLOWED_INCLUDE_PATH.append(modules)
 
     def load_yaml_structure(self, structure):
         yaml = YAML()
@@ -22,37 +31,35 @@ class Frosting(object):
         if self.structure is None:
             # There is no structure loaded
             raise NoStructureLoaded
-        if variable in self.structure['vars'] and self.structure['vars'][variable]['type'].startswith('types.'):
+        if variable in self.structure['vars']:
             # The variable exists in the structure
-            regex = re.compile(r'^types\.(.+)$')
-            typename = regex.fullmatch(
-                self.structure['vars'][variable]['type']).group(1)
-            try:
-                types = importlib.import_module('frosting.types')
-                if hasattr(types, typename):
-                    typedef = getattr(types, typename)
-                    if typedef.requires_input is False:
-                        inputs = typedef()
-                        self.input[variable] = inputs.get()
-                    else:
-                        if "validator" in self.structure['vars'][variable] and len(self.structure['vars'][variable]['validator']) > 0:
-                            regex = re.compile(r'^validators\.(.+)$')
-                            validator = regex.fullmatch(
-                                self.structure['vars'][variable]['validator']).group(1)
-                            validated = typedef(
-                                validator=validator, input=contents)
-                            self.input[variable] = validated.get()
-                        else:
-                            pprint(self.structure['vars'][variable])
-                            unvalidated = typedef(
-                                input=contents, **self.structure['vars'][variable])
-                            self.input[variable] = unvalidated.get()
+            # Extract the type
+            for allowed_type in self.ALLOWED_INCLUDE_PATH:
+                if not self.structure['vars'][variable]['type'].startswith(allowed_type):
+                    raise UnknownOrIncorrectType(
+                        "Type refers to a module not explicitly allowed")
 
+            typepath = self.structure['vars'][variable]['type'].split(
+                ".")  # Split the object path
+            classname = typepath.pop()  # Get the rightmost name
+            try:
+                frostmod = importlib.import_module(".".join(typepath))
+                if hasattr(frostmod, classname):
+                    frosttype = getattr(frostmod, classname)
+                    if frosttype.requires_input:
+                        inputs = frosttype(
+                            input=contents, **self.structure['vars'][variable])
+                        self.input[variable] = inputs.get()
+
+                    else:
+                        # We still want to pass variables
+                        inputs = frosttype(**self.structure['vars'][variable])
+                        self.input[variable] = inputs.get()
                 else:
                     raise UnknownOrIncorrectType(
                         "The type class doesn't exist")
             except ModuleNotFoundError:
-                raise UnknownOrIncorrectType("Invalid type definition")
+                raise UnknownOrIncorrectType("Couldn't load the module")
 
         else:
             raise UnknownVariable("The variable was not recogniced")
