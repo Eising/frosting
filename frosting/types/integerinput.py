@@ -26,7 +26,7 @@ range="""
 
     def filter(self):
         """ This function also checks if it's actually a number """
-        if self.input.__class__ == 'str':
+        if type(self.input) is str:
             if self.input.isnumeric():
                 self.input = int(self.input)
             else:
