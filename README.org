@@ -46,19 +46,19 @@ interface {{interface}}
   structure = """
   ---
   available_validators:
-    - validators.IPv4_Address: 'Validates IPv4 Addresses, e.g. 10.0.0.1'
-    - validators.IPv6_Address: 'Validates IPv6 Addresses, e.g. 2001:db8::f00'
+    - frosting.validators.IPv4_Address: 'Validates IPv4 Addresses, e.g. 10.0.0.1'
+    - frosting.validators.IPv6_Address: 'Validates IPv6 Addresses, e.g. 2001:db8::f00'
   name: "MyService"
   vars:
     interface:
-      type: types.TextInput
+      type: frosting.types.TextInput
       validator: ""
     ipv4:
-      type: types.TextInput
-      validator: "validators.IPv4_Address"
+      type: frosting.types.TextInput
+      validator: "frosting.validators.IPv4_Address"
     netmask:
-      type: types.TextInput
-      validator: "validators.IPv4_Address"
+      type: frosting.types.TextInput
+      validator: "frosting.validators.IPv4_Address"
     vlan:
       type: types.IntegerInput
       limit: 1..4094
@@ -76,3 +76,17 @@ interface {{interface}}
   print(result)
 
 #+END_SRC
+
+** Loading structure as python dict
+
+   #+BEGIN_SRC python
+     frosting = Frosting(template)
+     frosting.load_structure({
+         'var1': {
+             'type': 'frosting.types.TextInput',
+             'validator': 'frosting.validators.IPv4_Address'
+             }
+         })
+     frosting.add("var1", "1.1.1.1")
+     configuration = frosting.compile()
+   #+END_SRC
