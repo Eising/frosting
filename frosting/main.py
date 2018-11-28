@@ -49,7 +49,9 @@ class Frosting(object):
             # There is no structure loaded, we blindly add variable as is,
             # using DummyInput type.
             inputs = DummyInput(input=contents)
-            self.input[variable] = inputs.get()
+            # run the get function to catch the exception
+            inputs.get()
+            self.input[variable] = inputs
 
         else:
             if variable in self.structure['vars']:
@@ -70,13 +72,15 @@ class Frosting(object):
                         if frosttype.requires_input:
                             inputs = frosttype(
                                 input=contents, **self.structure['vars'][variable])
-                            self.input[variable] = inputs.get()
+                            inputs.get()
+                            self.input[variable] = inputs
 
                         else:
                             # We still want to pass variables
                             inputs = frosttype(
                                 **self.structure['vars'][variable])
-                            self.input[variable] = inputs.get()
+                            inputs.get()
+                            self.input[variable] = inputs
                     else:
                         raise UnknownOrIncorrectType(
                             "The type class doesn't exist")
@@ -96,7 +100,11 @@ class Frosting(object):
         vars.sort()
 
         if vars == tags:
-            return self.template.compile_template(**self.input)
+            data = {}
+            for variable, frosttype in self.input.items():
+                data[variable] = frosttype.get()
+
+            return self.template.compile_template(**data)
         else:
             raise TemplateCompileError(
                 "Template could not be compiled due to missing variables")
