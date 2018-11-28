@@ -37,7 +37,7 @@ class TextInput(BaseType):
                 raise InvalidValidatorModule("Invalid validator")
 
             if hasattr(validator, "validate"):
-                self.validator = validator()
+                self.validator = validator(**kwargs)
             else:
                 raise InvalidValidatorModule("Invalid validator")
 

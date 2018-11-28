@@ -3,6 +3,10 @@ import re
 
 class BaseValidator(object):
 
+    def __init__(self, **kwargs):
+        # Do nothing
+        pass
+
     regular_expression = r'.*'
 
     def validate(self, input):
