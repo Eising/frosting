@@ -12,26 +12,17 @@ class TextInput(BaseType):
         """Fetches the validator from the input kwargs, and initiates the parent
         class"""
         if "validator" in kwargs and len(kwargs.get('validator')) > 0:
-            self.validator = kwargs.get('validator')
-        else:
-            self.validator = None
+            # Load the validator here
 
-        # TODO: Allow modification of ALLOWED_INCLUDE_PATH
+            validator_name = kwargs.get('validator')
 
-        super().__init__(**kwargs)
-
-    def filter(self):
-        """
-        Filter loads the validator dynamically, and validates the text input.
-        """
-        if self.validator is not None:
             try:
                 for allowed_module in self.ALLOWED_INCLUDE_PATH:
-                    if not self.validator.startswith(allowed_module):
+                    if not validator_name.startswith(allowed_module):
                         raise InvalidValidatorModule(
                             "Validator refers to a module not explicitly allowed")
 
-                validator_module = self.validator.split(".")
+                validator_module = validator_name.split(".")
                 validator_class = validator_module.pop()
                 validator_module_path = ".".join(validator_module)
                 validators = importlib.import_module(validator_module_path)
@@ -41,14 +32,27 @@ class TextInput(BaseType):
                 else:
                     raise InvalidValidatorModule(
                         "Invalid validator {}".format(validator_class))
+
             except ModuleNotFoundError:
                 raise InvalidValidatorModule("Invalid validator")
 
             if hasattr(validator, "validate"):
-                tvalidator = validator()
-                return tvalidator.validate(self.input)
+                self.validator = validator()
             else:
                 raise InvalidValidatorModule("Invalid validator")
+
+        else:
+            self.validator = None
+        # TODO: Allow modification of ALLOWED_INCLUDE_PATH
+
+        super().__init__(**kwargs)
+
+    def filter(self):
+        """
+        Filter loads the validator dynamically, and validates the text input.
+        """
+        if self.validator is not None:
+            return self.validator.validate(self.input)
         else:
             return True
 
