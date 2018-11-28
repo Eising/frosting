@@ -136,6 +136,116 @@ vars:
         with self.assertRaises(frosting.exceptions.FieldInputNotValid):
             frost.add('asn', 'WRONG')
 
+    def test_vlan_validator(self):
+        frost = Frosting("--{{var}}--")
+        structure = {"var": {
+            'type': 'frosting.types.TextInput',
+            'validator': 'frosting.validators.VLAN'}}
+
+        frost.load_structure(structure)
+        frost.add('var', '100')
+        result = frost.compile()
+
+        self.assertEqual(result, "--100--")
+
+    def test_vlan_validator_error(self):
+        frost = Frosting("--{{var}}--")
+        structure = {"var": {
+            'type': 'frosting.types.TextInput',
+            'validator': 'frosting.validators.VLAN'}}
+
+        frost.load_structure(structure)
+        with self.assertRaises(frosting.exceptions.FieldInputNotValid):
+            frost.add('var', '9000')
+
+    def test_iox_phy_intf_validator(self):
+        frost = Frosting("--{{var}}--")
+        structure = {"var": {
+            'type': 'frosting.types.TextInput',
+            'validator': 'frosting.validators.IOSXR_Physical_Interface'}}
+
+        frost.load_structure(structure)
+        frost.add('var', 'TenGigE0/1/2/3')
+        result = frost.compile()
+
+        self.assertEqual(result, "--TenGigE0/1/2/3--")
+
+    def test_iox_phy_intf_validator_error(self):
+        frost = Frosting("--{{var}}--")
+        structure = {"var": {
+            'type': 'frosting.types.TextInput',
+            'validator': 'frosting.validators.VLAN'}}
+
+        frost.load_structure(structure)
+        with self.assertRaises(frosting.exceptions.FieldInputNotValid):
+            frost.add('var', 'xe-0/1/2/1')
+
+    def test_cidrv4_validator(self):
+        frost = Frosting("--{{var}}--")
+        structure = {"var": {
+            'type': 'frosting.types.TextInput',
+            'validator': 'frosting.validators.CIDRv4'}}
+
+        frost.load_structure(structure)
+        frost.add('var', '198.18.0.10/32')
+        result = frost.compile()
+
+        self.assertEqual(result, "--198.18.0.10/32--")
+
+    def test_cidrv4_validator_error(self):
+        frost = Frosting("--{{var}}--")
+        structure = {"var": {
+            'type': 'frosting.types.TextInput',
+            'validator': 'frosting.validators.CIDRv4'}}
+
+        frost.load_structure(structure)
+        with self.assertRaises(frosting.exceptions.FieldInputNotValid):
+            frost.add('var', '10.0.0.1')
+
+    def test_ipv6_validator(self):
+        frost = Frosting("--{{var}}--")
+        structure = {"var": {
+            'type': 'frosting.types.TextInput',
+            'validator': 'frosting.validators.IPv6_Address'}}
+
+        frost.load_structure(structure)
+        frost.add('var', '2001:db8:f00:ba44::1ac')
+        result = frost.compile()
+
+        self.assertEqual(result, "--2001:db8:f00:ba44::1ac--")
+
+    def test_ipv6_validator_error(self):
+        frost = Frosting("--{{var}}--")
+        structure = {"var": {
+            'type': 'frosting.types.TextInput',
+            'validator': 'frosting.validators.IPv6_Address'}}
+
+        frost.load_structure(structure)
+        with self.assertRaises(frosting.exceptions.FieldInputNotValid):
+            frost.add('var', '2001:db8:f00:ba44::1ac/96')
+
+    def test_cidrv6_validator(self):
+        frost = Frosting("--{{var}}--")
+        structure = {"var": {
+            'type': 'frosting.types.TextInput',
+            'validator': 'frosting.validators.CIDRv6'}}
+
+        frost.load_structure(structure)
+        frost.add('var', '2001:db8:f00:ba44::1ac/96')
+        result = frost.compile()
+
+        self.assertEqual(result, "--2001:db8:f00:ba44::1ac/96--")
+
+    def test_cidrv6_validator_error(self):
+        frost = Frosting("--{{var}}--")
+        structure = {"var": {
+            'type': 'frosting.types.TextInput',
+            'validator': 'frosting.validators.CIDRv6'}}
+
+        frost.load_structure(structure)
+        with self.assertRaises(frosting.exceptions.FieldInputNotValid):
+            frost.add('var', '2001:db8:f00:ba44::1ac')
+
 
 if __name__ == '__main__':
     unittest.main()
