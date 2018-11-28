@@ -88,6 +88,54 @@ vars:
 
         self.assertEqual(result, "1.1.1.1:99")
 
+    def test_regex_validator(self):
+        frost = Frosting("--{{foo}}--")
+        structure = {"foo":
+                     {
+                         'type': 'frosting.types.TextInput',
+                         'validator': 'frosting.validators.RegexValidator',
+                         'regex': '^[a-z][0-9]$'}
+                     }
+        frost.load_structure(structure)
+        frost.add('foo', 'b7')
+        result = frost.compile()
+
+        self.assertEqual(result, "--b7--")
+
+    def test_regex_validator_error(self):
+        frost = Frosting("--{{foo}}--")
+        structure = {"foo":
+                     {
+                         'type': 'frosting.types.TextInput',
+                         'validator': 'frosting.validators.RegexValidator',
+                         'regex': '^[a-z][0-9]$'}
+                     }
+        frost.load_structure(structure)
+        with self.assertRaises(frosting.exceptions.FieldInputNotValid):
+            frost.add('foo', 'INCORRECT')
+
+    def test_asn_validator(self):
+        frost = Frosting("--{{asn}}--")
+        structure = {"asn": {
+            'type': 'frosting.types.TextInput',
+            'validator': 'frosting.validators.ASN'}}
+
+        frost.load_structure(structure)
+        frost.add('asn', '65123')
+        result = frost.compile()
+
+        self.assertEqual(result, "--65123--")
+
+    def test_asn_validator_error(self):
+        frost = Frosting("--{{asn}}--")
+        structure = {"asn": {
+            'type': 'frosting.types.TextInput',
+            'validator': 'frosting.validators.ASN'}}
+
+        frost.load_structure(structure)
+        with self.assertRaises(frosting.exceptions.FieldInputNotValid):
+            frost.add('asn', 'WRONG')
+
 
 if __name__ == '__main__':
     unittest.main()
