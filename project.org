@@ -2,21 +2,37 @@
 
 * Milestone 1
 
-** TODO Port all validators from viconf
+** DONE Port all validators from viconf
+   CLOSED: [2018-11-28 Wed 14:21]
    I have a lot of regex-based validators in place already in viconf. These
    should be easy to migrate.
 
-** TODO  Implement range-based validation
+   I've now ported the most relevant ones.
+
+** DONE Implement range-based validation
+   CLOSED: [2018-11-28 Wed 13:16]
    Integer-range based validation is handy for e.g. VLANs.
+   Implemented in commit adf7f063c6e10cb4246112489bea106a51cf1c6b
 
 ** TODO Implement JSON-based service structures
+   Unsure if this is still necessary. Service structures can be loaded as YAML
+   and as python dicts now.
 
 ** DONE Implement more simple types
    CLOSED: [2018-11-26 Mon 16:02]
    I think numbers/integers is the only one here, but maybe others can come?
    Update: IntergerInput has been implemented with a limit option
 
-** TODO Migrate tester.py as unit tests
+** DONE Migrate tester.py as unit tests
+   CLOSED: [2018-11-28 Wed 13:16]
+   Tests are present in the test/ directory. Run them with:
+#+BEGIN_EXAMPLE
+python -m unittest test.test_frosting -v
+#+END_EXAMPLE
+
+** TODO Have types print their expected parameters somehow.
+   For integration purposes, it's advisable if you can get a list of supported
+   parameters for each type.
 
 * Milestone 2
 
